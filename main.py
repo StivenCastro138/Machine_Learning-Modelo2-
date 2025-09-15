@@ -1,156 +1,81 @@
-print("✅ Script final iniciado. Generando todos los análisis para el informe...")
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.preprocessing import LabelEncoder
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
 
-# --- CARGAR Y PREPARAR DATOS ---
+# 1. Cargar datos
 try:
-    df = pd.read_csv('email_dataset.csv')
+    data = pd.read_csv("Iris.csv")
+    print("Archivo cargado exitosamente.")
 except FileNotFoundError:
-    print("Error: Asegúrate de que tu archivo CSV ('email_dataset.csv') esté en la misma carpeta.")
+    print("Error: ¡No se encontró el archivo 'Iris.csv' en la carpeta!")
     exit()
 
-# Mapeamos etiquetas
-etiqueta_map = {'spam': 1, 'ham': 0}
-df['Clase'] = df['Clase'].map(etiqueta_map)
-df.dropna(subset=['Clase'], inplace=True)
-df['Clase'] = df['Clase'].astype(int)
+# -------------------------------------------------------------------------
+# GRÁFICO EXPLORATORIO 
+# -------------------------------------------------------------------------
+print("\nGenerando gráfico de dispersión por Sépalos...")
+plt.figure(figsize=(10, 7))
 
-# 🔹 Eliminamos soplones directos
-df = df.drop(columns=['FrecuenciaPalabrasSpam', 'ErroresOrtograficos', 'Cuerpo'], errors='ignore')
+# Usamos las características del SÉPALO 
+sns.scatterplot(data=data, x='SepalLengthCm', y='SepalWidthCm', hue='Species', style='Species', s=100) 
 
-# 🔹 Creamos features
-df['Asunto_Longitud'] = df['Asunto'].astype(str).apply(len)
-df['Asunto_NumExclamaciones'] = df['Asunto'].astype(str).apply(lambda x: x.count('!'))
-df['Asunto_NumMayus'] = df['Asunto'].astype(str).apply(lambda x: sum(1 for c in x if c.isupper()))
+plt.title('Dispersión por Largo y Ancho del Sépalo', fontsize=16) 
+plt.xlabel('Largo del Sépalo (cm)') 
+plt.grid(True)
+plt.legend(title='Especie')
+plt.show()
+# -------------------------------------------------------------------------
 
-# 🔹 Extraemos la hora de la fecha
-df['Hora'] = pd.to_datetime(df['FechaHora']).dt.hour
+# 2. Preparar variables
+features = ['SepalLengthCm', 'SepalWidthCm']
+X = data[features]
 
-# 🔹 Definimos features finales
-features_finales = [
-    'LongitudTexto',
-    'ProporcionMayus',
-    'URLs',
-    'NumDestinatarios',
-    'Asunto_Longitud',
-    'Asunto_NumExclamaciones',
-    'Asunto_NumMayus',
-    'Hora',
-    'Formato',
-    'Sector',
-    'Prioridad',
-    'Adjuntos'
-]
+# Codificar 'Species' como números (0,1,2)
+le = LabelEncoder()
+y = le.fit_transform(data['Species'])
 
-# Reaplicamos encoding solo a las categóricas necesarias
-df_encoded = pd.get_dummies(df[features_finales + ['Clase']], 
-                            columns=['Formato', 'Sector', 'Prioridad', 'Adjuntos'], 
-                            drop_first=True)
+# 3. División en entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# --- ANÁLISIS DE CORRELACIÓN ---
-print("\nGenerando análisis de correlación...")
-numeric_features = [
-    'LongitudTexto', 'ProporcionMayus', 'URLs', 
-    'NumDestinatarios', 'Asunto_Longitud', 
-    'Asunto_NumExclamaciones', 'Asunto_NumMayus', 'Hora'
-]
-correlation_matrix = df[numeric_features + ['Clase']].corr()
+# 4. Entrenar modelos
+modelo_lineal = LinearRegression()
+modelo_lineal.fit(X_train, y_train)
 
-# Gráfico 1: Matriz de Correlación
-plt.figure(figsize=(10, 8))
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
-plt.title('Gráfico 1: Matriz de Correlación de Features Numéricas')
-plt.savefig('grafico_1_correlacion.png')
-print("Gráfico 1 guardado como 'grafico_1_correlacion.png'")
+modelo_logistico = LogisticRegression(max_iter=200)
+modelo_logistico.fit(X_train, y_train)
 
-# --- SELECCIÓN DE CARACTERÍSTICAS Y DIVISIÓN DE DATOS ---
-X = df_encoded.drop(columns=['Clase'])
-y = df_encoded['Clase']
+print("\n✅ Modelos entrenados.")
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
+# 5. Predicciones con Regresión Lineal
+predicciones_continuas = modelo_lineal.predict(X_test)
+predicciones_clases = np.round(predicciones_continuas)
+predicciones_clases = np.clip(predicciones_clases, 0, 2).astype(int)
 
-# --- CONSTRUCCIÓN Y ENTRENAMIENTO DEL MODELO LOGÍSTICO ---
-print("\nConstruyendo y entrenando el modelo de Regresión Logística...")
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+# 6. Predicciones con Regresión Logística
+predicciones_logisticas = modelo_logistico.predict(X_test)
 
-model = LogisticRegression(max_iter=10000)
-model.fit(X_train_scaled, y_train)
-print("¡Modelo entrenado!")
+# 7. Evaluar precisión
+precision_lineal = accuracy_score(y_test, predicciones_clases)
+precision_logistica = accuracy_score(y_test, predicciones_logisticas)
 
-# --- PREDICCIONES Y MÉTRICAS DE ERROR ---
-y_pred = model.predict(X_test_scaled)
-y_pred_prob = model.predict_proba(X_test_scaled)[:, 1]
+print(f"\n📊 Precisión comparativa:")
+print(f" - Regresión Lineal: {precision_lineal * 100:.2f}%")
+print(f" - Regresión Logística: {precision_logistica * 100:.2f}%")
 
-# Métricas de error y rendimiento
-accuracy = (y_pred == y_test).mean()
-error_rate = 1 - accuracy
-report = classification_report(y_test, y_pred, output_dict=True)
-precision_spam = report['1']['precision']
-f1_spam = report['1']['f1-score']
+# -------------------------------------------------------------------------
+# MATRIZ DE CONFUSIÓN
+# -------------------------------------------------------------------------
+cm_lineal = confusion_matrix(y_test, predicciones_clases)
+plt.figure(figsize=(7, 6))
+sns.heatmap(cm_lineal, annot=True, fmt='d', cmap='Blues',
+            xticklabels=le.classes_, yticklabels=le.classes_)
 
-print("\n--- Métricas de Rendimiento y Error ---")
-print(f"Exactitud (Accuracy): {accuracy:.4f}")
-print(f"Tasa de Error: {error_rate:.4f}")
-print(f"Precisión para SPAM: {precision_spam:.4f}")
-print(f"F1-Score para SPAM: {f1_spam:.4f}")
-print("---------------------------------------")
-
-# --- ANÁLISIS DETALLADO Y GRÁFICOS ---
-
-# Gráfico 2: Matriz de Confusión
-cm = confusion_matrix(y_test, y_pred)
-plt.figure(figsize=(8, 6))
-title = f'Gráfico 2: Matriz de Confusión (sobre {len(y_test)} muestras de prueba)'
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['HAM', 'SPAM'], yticklabels=['HAM', 'SPAM'])
-plt.xlabel('Predicción del Modelo')
+plt.title('Matriz de Confusión - Regresión Lineal (con Sépalos)')
+plt.xlabel('Predicción')
 plt.ylabel('Valor Real')
-plt.title(title)
-plt.savefig('grafico_2_matriz_confusion.png')
-print("Gráfico 2 guardado como 'grafico_2_matriz_confusion.png'")
-
-# Gráfico 3: Importancia de Características
-importances = pd.DataFrame(data={'Feature': X.columns, 'Importance': model.coef_[0]})
-importances = importances.sort_values(by='Importance', key=abs, ascending=False)
-plt.figure(figsize=(12, 8))
-sns.barplot(x='Importance', y='Feature', data=importances.head(15))
-plt.title('Gráfico 3: Importancia de cada Característica (Feature Importance)')
-plt.savefig('grafico_3_importancia_features.png')
-print("Gráfico 3 guardado como 'grafico_3_importancia_features.png'")
-
-# Gráfico 4: Distribución de Probabilidades y Umbrales
-fpr, tpr, thresholds_roc = roc_curve(y_test, y_pred_prob)
-optimal_idx = np.argmax(tpr - fpr)
-optimal_threshold = thresholds_roc[optimal_idx]
-
-plt.figure(figsize=(12, 7))
-sns.histplot(x=y_pred_prob, hue=y_test, kde=True, bins=50)
-plt.title('Gráfico 4: Distribución de Probabilidades y Umbrales')
-plt.xlabel('Probabilidad Predicha de ser SPAM')
-plt.ylabel('Cantidad de Correos')
-plt.axvline(0.5, color='red', linestyle='--', label=f'Umbral por Defecto (0.5)')
-plt.axvline(optimal_threshold, color='green', linestyle='--', label=f'Umbral Óptimo ({optimal_threshold:.2f})')
-plt.legend()
-plt.savefig('grafico_4_distribucion_probabilidades.png')
-print("Gráfico 4 guardado como 'grafico_4_distribucion_probabilidades.png'")
-
-# --- VALIDACIÓN CRUZADA ---
-print("\nEjecutando validación cruzada (5 folds)...")
-scores_f1 = cross_val_score(model, scaler.transform(X), y, cv=5, scoring='f1')
-scores_acc = cross_val_score(model, scaler.transform(X), y, cv=5, scoring='accuracy')
-
-print("\n--- Validación Cruzada ---")
-print(f"F1 promedio: {scores_f1.mean():.4f} ± {scores_f1.std():.4f}")
-print(f"Accuracy promedio: {scores_acc.mean():.4f} ± {scores_acc.std():.4f}")
-print("--------------------------")
-
-print("\n✅ ¡Proceso completado! Revisa los 4 archivos .png y los resultados en consola.")
+plt.show()
