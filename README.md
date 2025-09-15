@@ -29,6 +29,7 @@ Proyecto académico que compara dos modelos, **Regresión Lineal (adaptada)** y 
  ┃ ┣ 📂 pdf
  ┃ ┃ ┗ 📜 Informe_final.pdf
  ┃ ┣ 📜 main.tex
+ ┣ 📜 main.py
  ┣ 📜 requirements.txt
  ┗ 📜 README.md
 ```
