@@ -25,7 +25,10 @@ Proyecto académico que compara dos modelos, **Regresión Lineal (adaptada)** y 
  ┣ 📂 Graficos
  ┃ ┣ 📊 1_dispersion_sepalos.png
  ┃ ┣ 📊 2_matriz_confusion.png
- ┣ 📜 analisis_iris.py
+ ┣ 📂 Informe
+ ┃ ┣ 📂 pdf
+ ┃ ┃ ┗ 📜 Informe_final.pdf
+ ┃ ┣ 📜 main.tex
  ┣ 📜 requirements.txt
  ┗ 📜 README.md
 ```
