@@ -1,53 +1,46 @@
-# 📧 Clasificación de Correos: SPAM vs HAM
+# 🌸 Clasificación de Especies de Iris
 
-Proyecto académico que implementa un modelo de **Regresión Logística** para clasificar correos electrónicos en **SPAM** o **HAM**.
-Incluye dataset, código en Python, métricas de rendimiento, gráficos interpretativos y un **informe técnico en LaTeX/Overleaf**.
-
----
-
-## 🚀 Características principales
-
-* Preprocesamiento del dataset (`Dataset/email_dataset.csv`).
-* Ingeniería de características: remitente, asunto, longitud, proporción de mayúsculas, URLs, adjuntos, entre otros.
-* Entrenamiento con **Regresión Logística**.
-* Evaluación con métricas (Accuracy, Error Rate, Precision, F1).
-* Validación cruzada.
-* Visualizaciones clave.
-* Informe académico en **LaTeX + PDF**.
+Proyecto académico que compara dos modelos, **Regresión Lineal (adaptada)** y **Regresión Logística**, para clasificar las especies de flores del famoso dataset Iris. El análisis se enfoca intencionalmente en las características del **sépalo**, que presentan un mayor desafío para la clasificación.
 
 ---
 
-## 📂 Estructura del repositorio
+## 🚀 Características Principales
+
+* Carga y exploración del dataset `Iris.csv`.
+* **Análisis Visual Exploratorio (EDA)** para entender la distribución de los datos.
+* Entrenamiento de dos modelos: `LinearRegression` y `LogisticRegression`.
+* Comparación de rendimiento basada en la métrica de **Accuracy (Precisión)**.
+* Generación de visualizaciones clave para interpretar los resultados:
+    * Gráfico de dispersión.
+    * Matriz de confusión.
+
+---
+
+## 📂 Estructura del Repositorio
 
 ```
-📦 Clasificacion-SPAM-HAM
+📦 Clasificacion-Iris
  ┣ 📂 Dataset
- ┃ ┗ 📜 email_dataset.csv
- ┣ 📂 Gráficos
- ┃ ┣ 📊 grafico_1_correlacion.png
- ┃ ┣ 📊 grafico_2_matriz_confusion.png
- ┃ ┣ 📊 grafico_3_importancia_features.png
- ┃ ┗ 📊 grafico_4_distribucion_probabilidades.png
- ┣ 📂 Informe
- ┃ ┣ 📂 pdf
- ┃ ┃ ┗ 📜 Informe_final.pdf
- ┃ ┣ 📜 main.tex
- ┣ 📜 main.py
+ ┃ ┗ 📜 Iris.csv
+ ┣ 📂 Graficos
+ ┃ ┣ 📊 1_dispersion_sepalos.png
+ ┃ ┣ 📊 2_matriz_confusion.png
+ ┣ 📜 analisis_iris.py
  ┣ 📜 requirements.txt
- ┣ 📜 README.md
+ ┗ 📜 README.md
 ```
 
 ---
 
 ## 🛠️ Requisitos
 
-Instalar dependencias con:
+Para ejecutar este proyecto, necesitas tener Python instalado. Luego, instala las dependencias necesarias ejecutando el siguiente comando en tu terminal:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 📦 Librerías principales
+### 📦 Librerías Principales
 
 * `pandas`
 * `numpy`
@@ -59,67 +52,45 @@ pip install -r requirements.txt
 
 ## ▶️ Ejecución
 
-Entrenar y evaluar el modelo:
+Para entrenar los modelos y generar los gráficos, ejecuta el script principal desde tu terminal:
 
 ```bash
-python main.py
+python analisis_iris.py
 ```
 
-Esto generará:
-
-* Métricas en consola.
-* Gráficos en la carpeta `Gráficos/`.
+Esto realizará dos acciones:
+1.  Imprimirá las métricas de precisión de ambos modelos en la consola.
+2.  Guardará automáticamente los dos gráficos generados en la carpeta `Graficos/`.
 
 ---
 
-## 📊 Resultados y Gráficos
+## 📊 Gráficos y Resultados
 
-### 🔹 1. Correlación de variables
-### 🔹 2. Matriz de confusión
-### 🔹 3. Importancia de las características
-### 🔹 4. Distribución de probabilidades
+### 🔹 1. Dispersión por Largo y Ancho del Sépalo
+Este gráfico muestra la distribución de las tres especies de Iris usando solo las medidas del sépalo. Se puede observar una superposición significativa entre *Iris-versicolor* e *Iris-virginica*, lo que explica por qué el problema es más desafiante que si se usaran las medidas del pétalo.
 
----
-
-## 📑 Informe en LaTeX
-
-El informe académico completo está disponible en:
-
-* 📄 [Informe Final en PDF](Informe/pdf/Informe_final.pdf)
-* 📜 [Código LaTeX](Informe/main.tex)
-
-📌 **Cómo usar en Overleaf**:
-
-1. Descarga la carpeta `Informe/`.
-2. Súbela a [Overleaf](https://www.overleaf.com/).
-3. Compila con **pdfLaTeX** para generar el documento.
+### 🔹 2. Matriz de Confusión
+La matriz de confusión visualiza el rendimiento del modelo de Regresión Lineal adaptado. Muestra cuántas predicciones fueron correctas (la diagonal) y en qué clases se equivocó el modelo.
 
 ---
 
-## 📈 Métricas de rendimiento
+## 📈 Métricas de Rendimiento
+
+Los resultados obtenidos al ejecutar el script son los siguientes (pueden variar ligeramente por la aleatoriedad en la división de datos):
 
 ```
---- Métricas de Rendimiento y Error ---
-Exactitud (Accuracy): 1.0000
-Tasa de Error: 0.0000
-Precisión para SPAM: 1.0000
-F1-Score para SPAM: 1.0000
----------------------------------------
---- Validación Cruzada ---
-F1 promedio: 1.0000 +- 0.0000
-Accuracy promedio: 1.0000 +- 0.0000
+📊 Precisión comparativa:
+ - Regresión Lineal: 86.67%
+ - Regresión Logística: 90.00%
 ```
-
-⚠️ Estos resultados reflejan un **sobreajuste**, ya que en contextos reales el rendimiento nunca es perfecto. Esto abre la discusión sobre la necesidad de datasets más variados y representativos.
 
 ---
 
 ## 📌 Conclusiones
 
-* La **Regresión Logística** es efectiva para tareas de clasificación binaria como SPAM vs HAM.
-* El dataset empleado permitió un **100% de rendimiento**, pero se identificó riesgo de sobreajuste.
-* Se evidenció la importancia de la ingeniería de características y el análisis gráfico.
-* El informe académico documenta tanto la metodología como los resultados.
+* La **Regresión Logística** supera a la Regresión Lineal adaptada para esta tarea de clasificación, demostrando ser un modelo más adecuado.
+* El uso exclusivo de las características del **sépalo** reduce la precisión en comparación con el uso de las características del pétalo, creando un escenario de prueba más realista y desafiante.
+* El análisis visual es fundamental para comprender tanto la naturaleza de los datos como el rendimiento y los errores específicos de los modelos.
 
 ---
 
