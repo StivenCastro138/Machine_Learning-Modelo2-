@@ -58,7 +58,7 @@ pip install -r requirements.txt
 Para entrenar los modelos y generar los gráficos, ejecuta el script principal desde tu terminal:
 
 ```bash
-python analisis_iris.py
+python main.py
 ```
 
 Esto realizará dos acciones:
@@ -76,6 +76,20 @@ Este gráfico muestra la distribución de las tres especies de Iris usando solo 
 La matriz de confusión visualiza el rendimiento del modelo de Regresión Lineal adaptado. Muestra cuántas predicciones fueron correctas (la diagonal) y en qué clases se equivocó el modelo.
 
 ---
+
+## 📑 Informe en LaTeX
+
+El informe académico completo está disponible en:
+
+* 📄 [Informe Final en PDF](Informe/pdf/Informe_final.pdf)
+* 📜 [Código LaTeX](Informe/main.tex)
+
+📌 **Cómo usar en Overleaf**:
+
+1. Descarga la carpeta `Informe/`.
+2. Súbela a [Overleaf](https://www.overleaf.com/).
+3. Compila con **pdfLaTeX** para generar el documento.
+
 
 ## 📈 Métricas de Rendimiento
 
